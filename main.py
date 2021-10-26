@@ -3,7 +3,7 @@ import requests
 import http.client
 import numpy as np
 from flask import Flask
-from flask import request, escape
+from flask import request, escape, render_template
 
 app = Flask(__name__)
 
@@ -53,8 +53,10 @@ def fetchDataFromPubServer(ID_arr):
     pubSubURL = "http://localhost:7001/fetchData"
     myData = {"ID": ID_arr}
     clientIDData = requests.post(pubSubURL, json=myData).json()["data"]
-
-    data = getData(ID_arr, clientIDData)
+    if clientIDData:
+        data = getData(ID_arr, clientIDData)
+    else:
+        data = None
     print(data)
     return data
 
@@ -96,18 +98,20 @@ def index():
     and queries the Publish Subscribe server to fetch the Data
     """
     clientURL = request.args.get("ClientURL", "")
+    data = ""
     if clientURL:
         ID_arr = fetchIDFromClientURL(clientURL)
         data = fetchDataFromPubServer(ID_arr)
-    return (
-        """<form action="" method="get">
-                <input type="text" name="ClientURL">
-                <input type="submit" value="Fetch Data">
-            </form>"""
-        + clientURL
-        + data
-    )
+    # return (
+    #     """<form action="" method="get">
+    #             <input type="text" name="ClientURL">
+    #             <input type="submit" value="Fetch Data">
+    #         </form>"""
+    #     + clientURL
+    #     + (data if data else "No client data found")
+    # )
 
+    return render_template("form.html", data=data)
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=6001, debug=True)
