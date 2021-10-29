@@ -23,9 +23,12 @@ def getData(ID, ID_Data):
         The data which was published by the client with the specified ID
 
     """
-    data = np.divide(np.array(ID_Data) - np.array(ID), np.array(ID))
+    # print(ID_Data)
+    # print(ID)
+    data = np.multiply(np.array(ID_Data) - np.array(ID), np.array(ID))
     curr = ""
     data[np.isclose(data, -1)] = 0
+    # print(data)
     dataBinary = []
     for i in range(len(data)):
         
@@ -33,6 +36,7 @@ def getData(ID, ID_Data):
             dataBinary.append(curr)
             curr = ""
         curr += str(int(data[i]))
+    print(dataBinary)
     dataString1 = list(map(lambda x: chr(int(x, 2)), dataBinary))
     return "".join(dataString1)
 
@@ -53,6 +57,7 @@ def fetchDataFromPubServer(ID_arr):
     pubSubURL = "http://localhost:7001/fetchData"
     myData = {"ID": ID_arr}
     clientIDData = requests.post(pubSubURL, json=myData).json()["data"]
+    print(clientIDData)
     if clientIDData:
         data = getData(ID_arr, clientIDData)
     else:
@@ -111,7 +116,7 @@ def index():
     #     + (data if data else "No client data found")
     # )
 
-    return render_template("form.html", data=data)
+    return render_template("index.html", data=data)
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=6001, debug=True)
